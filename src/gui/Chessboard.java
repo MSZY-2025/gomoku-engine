@@ -1,6 +1,7 @@
 package gui;
 
 import ai.*;
+import ai.MonteCarlo.SelectionType;
 import game.GameController;
 import game.constant.GameConst;
 import observer.HistoryObserver;
@@ -283,8 +284,17 @@ public class Chessboard extends JPanel {
             case GameConst.THREAT_SPACE_SEARCH:
                 result = ThreatSpace.startThreatSpaceSearch(chess);
                 break;
-            case GameConst.MONTE_CARLO_TREE_SEARCH:
-                result = MonteCarlo.monteCarloTreeSearch(chess);
+            case GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.STANDARD);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.WANING_EXPLORATION);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.FAST_WINS);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.HEURISTICS);
                 break;
             default:
                 System.err.println("Invalid Ai Index");

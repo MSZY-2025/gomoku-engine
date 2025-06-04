@@ -36,13 +36,20 @@ public class SettingPane extends JFrame {
         comboBox.addItem("Transposition search");
         comboBox.addItem("Killer heuristic");
         comboBox.addItem("Threat space search");
-        comboBox.addItem("Monte carlo tree search");
+        comboBox.addItem("Standard MCTS");
+        comboBox.addItem("MCTS with waning exploration factor");
+        comboBox.addItem("MCTS with advantaging fast wins");
+        comboBox.addItem("Heuristics based MCTS");
         comboBox.setSelectedIndex(2);
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int aiIndex = comboBox.getSelectedIndex();
-                if (aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH || aiIndex == GameConst.BEST_FIRST) {
+                if (aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD ||
+                    aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION ||
+                    aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS ||
+                    aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS ||
+                    aiIndex == GameConst.BEST_FIRST) {
                     depthSpinner.setEnabled(false);
                 } else {
                     depthSpinner.setEnabled(true);

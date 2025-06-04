@@ -1,6 +1,8 @@
 package test;
 
 import ai.MonteCarlo;
+import ai.MonteCarlo.SelectionType;
+
 public class TestMonte {
     private static int[][] dummyChess1 = new int[][]
         {
@@ -99,7 +101,7 @@ public class TestMonte {
 
     public static void main(String[] args) {
         for(int i = 0; i < 10; i++){
-            MonteCarlo.tester(dummyChess5);
+            MonteCarlo.tester(dummyChess5, SelectionType.STANDARD);
         }
 
     }

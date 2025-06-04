@@ -22,11 +22,11 @@ public class MonteCarlo extends Agent {
      */
     private static int iteration;
 
-    public static void tester(int[][] chess) {
+    public static void tester(int[][] chess, SelectionType type) {
         iteration = 0;
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
         while (iteration < 30000) {
-            selection(root);
+            selection(root, type);
         }
 
         List<TreeNode> children = root.getChildren();
@@ -50,14 +50,14 @@ public class MonteCarlo extends Agent {
      * @param chess 2-dimensional array represents the chessboard
      * @return Position of the next move
      */
-    public static int[] monteCarloTreeSearch(int[][] chess) {
+    public static int[] monteCarloTreeSearch(int[][] chess, SelectionType type) {
         Background.addMessage("Doing MCTS, please wait..");
         iteration = 0;
 
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
         //execute MCTS for 50000 times
         while (iteration < 50000) {
-            selection(root);
+            selection(root, type);
         }
 
         List<TreeNode> children = root.getChildren();
@@ -83,18 +83,18 @@ public class MonteCarlo extends Agent {
      *
      * @param root The node for process selection, initially the node is set to the root
      */
-    private static void selection(TreeNode root) {
+    private static void selection(TreeNode root, SelectionType type) {
         if (root.isLeaf()) {
             if (root.getVisitsCount() == 0) {
                 rollout(root);
             } else {
-                expansion(root);
+                expansion(root, type);
             }
         } else {
             List<TreeNode> children = root.getChildren();
-            TreeNode best = ucbSelection(children);
+            TreeNode best = ucbSelection(children, type);
             if (best != null) {
-                selection(best);
+                selection(best, type);
             } else {
                 System.out.println("null");
             }
@@ -107,11 +107,11 @@ public class MonteCarlo extends Agent {
      *
      * @param node The leaf node need to be expanded
      */
-    private static void expansion(TreeNode node) {
+    private static void expansion(TreeNode node, SelectionType type) {
         List<TreeNode> children = generatesChildren(node);
         node.setChildren(children);
         node.setLeaf(false);
-        selection(node);
+        selection(node, type);
     }
 
     /**
@@ -177,18 +177,43 @@ public class MonteCarlo extends Agent {
             .sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
     }
 
+    public enum SelectionType {
+        STANDARD,
+        WANING_EXPLORATION,
+        FAST_WINS,
+        HEURISTICS
+    }
+
+    private static double selectionFactor(TreeNode node, SelectionType type) {
+        switch(type) {
+            case STANDARD:
+                return ucb1(node);
+            case WANING_EXPLORATION:
+            /* TODO */
+            break;
+            case FAST_WINS:
+            /* TODO */
+            break;
+            case HEURISTICS:
+            /* TODO */
+            break;
+        }
+
+        return 0.0;
+    }
+
     /**
      * Selects the child node with the highest UCB value
      *
      * @param children The child nodes
      * @return The best node
      */
-    private static TreeNode ucbSelection(List<TreeNode> children) {
+    private static TreeNode ucbSelection(List<TreeNode> children, SelectionType type) {
         double max = Double.NEGATIVE_INFINITY;
         TreeNode best = null;
 
         for (TreeNode child : children) {
-            double ucbVal = ucb1(child);
+            double ucbVal = selectionFactor(child, type);
             if (ucbVal > max) {
                 max = ucbVal;
                 best = child;
@@ -200,7 +225,7 @@ public class MonteCarlo extends Agent {
         }
 
         if (best == null) {
-            System.out.println(ucb1(children.get(0)));
+            System.out.println(selectionFactor(children.get(0), type));
         }
         return best;
     }

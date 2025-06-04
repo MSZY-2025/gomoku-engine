@@ -48,7 +48,22 @@ public class GameConst {
     /**
      * Code for monte carlo tree search
      */
-    public static final int MONTE_CARLO_TREE_SEARCH = 6;
+    public static final int MONTE_CARLO_TREE_SEARCH_STANDARD = 6;
+
+    /**
+     * Code for monte carlo tree search with waning exploration factor
+     */
+    public static final int MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION = 7;
+
+    /**
+     * Code for monte carlo tree search with fast wins factor
+     */
+    public static final int MONTE_CARLO_TREE_SEARCH_FAST_WINS = 8;
+
+    /**
+     * Code for monte carlo tree search based on heuristics
+     */
+    public static final int MONTE_CARLO_TREE_SEARCH_HEURISTICS = 9;
 
     /**
      * Code for human move first
