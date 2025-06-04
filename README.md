@@ -16,3 +16,34 @@ The program looks like this:
 The UML diagram of this project is illustrated below:
 ![alt text](https://user-images.githubusercontent.com/35700810/55282209-96cf8580-5337-11e9-9a61-d2051b6fff27.png)
 
+
+## Ubuntu
+
+This section describes how to develop the project on Ubuntu.
+
+### Prerequisites
+
+Install required packages
+
+```bash
+sudo apt install default-jre openjdk-19-jdk
+```
+
+### Build
+
+To compile java 
+```bash
+make build
+```
+
+To run specific target
+```bash
+make run TARGET=<target-name>
+```
+
+The available targets are:
+- AgentAnalysis
+- StartGame
+- TestMonte
+
+If `TARGET` is not specified then `StartGame` is run by default. See [source](src/test/) for targets source code.
