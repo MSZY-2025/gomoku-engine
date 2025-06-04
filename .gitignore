@@ -8,3 +8,6 @@ out/production
 #intellij
 .idea
 *.iml
+
+#build
+build
