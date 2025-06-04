@@ -154,7 +154,7 @@ public class MonteCarlo extends Agent {
             if (node.getThisTurnPlayer() == winningPiece) {
                 node.increaseReward(reward);
             } else {
-                node.increaseReward(-1);
+                node.increaseReward(0);
             }
             node.increaseVisitCount();
             backPropagation(node.getParent(), reward, winningPiece);
