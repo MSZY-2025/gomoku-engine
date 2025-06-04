@@ -167,9 +167,14 @@ public class MonteCarlo extends Agent {
      * @param node Calculates the UCB value for this particular node
      * @return UCB value
      */
-    private static double ucb1(TreeNode node) {
+    private static double ucb1(TreeNode node, boolean isWaining) {
         //1.1 as the ucb constant
-        final double c = 1.1;
+        double c = 1.1;
+        if(isWaining) {
+            int height = node.getHeight();
+            int maxHeight = node.getMaxHeight();
+            c *= AiUtils.safeDivide(maxHeight - height, maxHeight);
+        }
         int reward = node.getReward();
         int visitCount = node.getVisitsCount();
         int parentVisitCount = node.getParent().getVisitsCount();
@@ -187,10 +192,9 @@ public class MonteCarlo extends Agent {
     private static double selectionFactor(TreeNode node, SelectionType type) {
         switch(type) {
             case STANDARD:
-                return ucb1(node);
+                return ucb1(node, false);
             case WANING_EXPLORATION:
-            /* TODO */
-            break;
+                return ucb1(node, true);
             case FAST_WINS:
             /* TODO */
             break;
@@ -366,13 +370,21 @@ class TreeNode {
 
     private List<TreeNode> children;
 
+    // extendend fields
+
+    private int height;
+
     public TreeNode(int[][] chess) {
         this.chess = chess;
+        // extended
+        InitExtendedFields(null);
     }
 
     public TreeNode(boolean isLeaf, int[][] chess) {
         this.isLeaf = isLeaf;
         this.chess = chess;
+        // extended
+        InitExtendedFields(null);
     }
 
     public TreeNode(boolean isLeaf, int thisTurnPlayer, int x, int y, int[][] chess, TreeNode parent) {
@@ -382,6 +394,8 @@ class TreeNode {
         this.y = y;
         this.chess = chess;
         this.parent = parent;
+        // extended
+        InitExtendedFields(parent);
     }
 
     public boolean isLeaf() {
@@ -471,4 +485,19 @@ class TreeNode {
     public void increaseVisitCount() {
         this.visitsCount += 1;
     }
+
+    // extended
+
+    private void InitExtendedFields(TreeNode parent) {
+        this.height = parent == null ? 0 : parent.height + 1;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getMaxHeight() {
+        return chess.length * chess[0].length;
+    }
+
 }
