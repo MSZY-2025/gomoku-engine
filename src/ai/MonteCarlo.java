@@ -138,7 +138,8 @@ public class MonteCarlo extends Agent {
         } while (!GameStatusChecker.isFiveInLine(chess, randomMove.getX(), randomMove.getY()));
 
         //back propagation
-        backPropagation(node, 1, lastTurnPlayer);
+        //we assume that a fast game takes at most number of moves equal to the half of the size of the board
+        backPropagation(node, 1, lastTurnPlayer, numOfMoves <= node.getMaxHeight() / 2);
     }
 
 
@@ -149,15 +150,18 @@ public class MonteCarlo extends Agent {
      * @param reward       The reward for winning nodes
      * @param winningPiece Indicates which player wins
      */
-    private static void backPropagation(TreeNode node, int reward, int winningPiece) {
+    private static void backPropagation(TreeNode node, int reward, int winningPiece, boolean fastGame) {
         if (node != null) {
             if (node.getThisTurnPlayer() == winningPiece) {
                 node.increaseReward(reward);
+                if(fastGame) {
+                    node.increaseFastWinsCount();
+                }
             } else {
                 node.increaseReward(0);
             }
             node.increaseVisitCount();
-            backPropagation(node.getParent(), reward, winningPiece);
+            backPropagation(node.getParent(), reward, winningPiece, fastGame);
         }
     }
 
@@ -167,7 +171,7 @@ public class MonteCarlo extends Agent {
      * @param node Calculates the UCB value for this particular node
      * @return UCB value
      */
-    private static double ucb1(TreeNode node, boolean isWaining) {
+    private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins) {
         //1.1 as the ucb constant
         double c = 1.1;
         if(isWaining) {
@@ -178,8 +182,18 @@ public class MonteCarlo extends Agent {
         int reward = node.getReward();
         int visitCount = node.getVisitsCount();
         int parentVisitCount = node.getParent().getVisitsCount();
-        return AiUtils.safeDivide(reward, visitCount) + c * Math
-            .sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
+        double exploration = c * Math.sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
+        double exploitation;
+        if(isFastWins) {
+            int fastWinsCount = node.getFastWinsCount();
+            double cFastWins = 0.6; // TODO: pass it as a parameter
+            cFastWins = AiUtils.Truncate(cFastWins, 0.0, 1.0);
+            exploitation =
+                 AiUtils.safeDivide(cFastWins * fastWinsCount + (1.0 - cFastWins) * (reward - fastWinsCount), visitCount);
+        } else {
+            exploitation = AiUtils.safeDivide(reward, visitCount);
+        }
+        return exploitation + exploration;
     }
 
     public enum SelectionType {
@@ -192,12 +206,11 @@ public class MonteCarlo extends Agent {
     private static double selectionFactor(TreeNode node, SelectionType type) {
         switch(type) {
             case STANDARD:
-                return ucb1(node, false);
+                return ucb1(node, false, false);
             case WANING_EXPLORATION:
-                return ucb1(node, true);
+                return ucb1(node, true, false);
             case FAST_WINS:
-            /* TODO */
-            break;
+                return ucb1(node, false, true);
             case HEURISTICS:
             /* TODO */
             break;
@@ -257,7 +270,7 @@ public class MonteCarlo extends Agent {
             if(!isTerminal){
                 children.add(new TreeNode(true, nextTurnPlayer, x, y, nextChess, node));
             }else{
-                backPropagation(node, 1, nextTurnPlayer);
+                backPropagation(node, 1, nextTurnPlayer, false);
             }
         }
 
@@ -373,6 +386,8 @@ class TreeNode {
     // extendend fields
 
     private int height;
+
+    private int fastWinsCount = 0;
 
     public TreeNode(int[][] chess) {
         this.chess = chess;
@@ -498,6 +513,14 @@ class TreeNode {
 
     public int getMaxHeight() {
         return chess.length * chess[0].length;
+    }
+
+    public int getFastWinsCount() {
+        return fastWinsCount;
+    }
+
+    public void increaseFastWinsCount() {
+        this.fastWinsCount++;
     }
 
 }
