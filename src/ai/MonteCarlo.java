@@ -22,11 +22,11 @@ public class MonteCarlo extends Agent {
      */
     private static int iteration;
 
-    public static void tester(int[][] chess) {
+    public static void tester(int[][] chess, SelectionType type) {
         iteration = 0;
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
         while (iteration < 30000) {
-            selection(root);
+            selection(root, type);
         }
 
         List<TreeNode> children = root.getChildren();
@@ -50,14 +50,14 @@ public class MonteCarlo extends Agent {
      * @param chess 2-dimensional array represents the chessboard
      * @return Position of the next move
      */
-    public static int[] monteCarloTreeSearch(int[][] chess) {
+    public static int[] monteCarloTreeSearch(int[][] chess, SelectionType type) {
         Background.addMessage("Doing MCTS, please wait..");
         iteration = 0;
 
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
         //execute MCTS for 50000 times
         while (iteration < 50000) {
-            selection(root);
+            selection(root, type);
         }
 
         List<TreeNode> children = root.getChildren();
@@ -83,18 +83,18 @@ public class MonteCarlo extends Agent {
      *
      * @param root The node for process selection, initially the node is set to the root
      */
-    private static void selection(TreeNode root) {
+    private static void selection(TreeNode root, SelectionType type) {
         if (root.isLeaf()) {
             if (root.getVisitsCount() == 0) {
                 rollout(root);
             } else {
-                expansion(root);
+                expansion(root, type);
             }
         } else {
             List<TreeNode> children = root.getChildren();
-            TreeNode best = ucbSelection(children);
+            TreeNode best = ucbSelection(children, type);
             if (best != null) {
-                selection(best);
+                selection(best, type);
             } else {
                 System.out.println("null");
             }
@@ -107,11 +107,11 @@ public class MonteCarlo extends Agent {
      *
      * @param node The leaf node need to be expanded
      */
-    private static void expansion(TreeNode node) {
+    private static void expansion(TreeNode node, SelectionType type) {
         List<TreeNode> children = generatesChildren(node);
         node.setChildren(children);
         node.setLeaf(false);
-        selection(node);
+        selection(node, type);
     }
 
     /**
@@ -138,7 +138,8 @@ public class MonteCarlo extends Agent {
         } while (!GameStatusChecker.isFiveInLine(chess, randomMove.getX(), randomMove.getY()));
 
         //back propagation
-        backPropagation(node, 1, lastTurnPlayer);
+        //we assume that a fast game takes at most number of moves equal to the half of the size of the board
+        backPropagation(node, 1, lastTurnPlayer, numOfMoves <= node.getMaxHeight() / 2);
     }
 
 
@@ -149,15 +150,18 @@ public class MonteCarlo extends Agent {
      * @param reward       The reward for winning nodes
      * @param winningPiece Indicates which player wins
      */
-    private static void backPropagation(TreeNode node, int reward, int winningPiece) {
+    private static void backPropagation(TreeNode node, int reward, int winningPiece, boolean fastGame) {
         if (node != null) {
             if (node.getThisTurnPlayer() == winningPiece) {
                 node.increaseReward(reward);
+                if(fastGame) {
+                    node.increaseFastWinsCount();
+                }
             } else {
-                node.increaseReward(-1);
+                node.increaseReward(0);
             }
             node.increaseVisitCount();
-            backPropagation(node.getParent(), reward, winningPiece);
+            backPropagation(node.getParent(), reward, winningPiece, fastGame);
         }
     }
 
@@ -167,14 +171,52 @@ public class MonteCarlo extends Agent {
      * @param node Calculates the UCB value for this particular node
      * @return UCB value
      */
-    private static double ucb1(TreeNode node) {
+    private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins) {
         //1.1 as the ucb constant
-        final double c = 1.1;
+        double c = 1.1;
+        if(isWaining) {
+            int height = node.getHeight();
+            int maxHeight = node.getMaxHeight();
+            c *= AiUtils.safeDivide(maxHeight - height, maxHeight);
+        }
         int reward = node.getReward();
         int visitCount = node.getVisitsCount();
         int parentVisitCount = node.getParent().getVisitsCount();
-        return AiUtils.safeDivide(reward, visitCount) + c * Math
-            .sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
+        double exploration = c * Math.sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
+        double exploitation;
+        if(isFastWins) {
+            int fastWinsCount = node.getFastWinsCount();
+            double cFastWins = 0.6; // TODO: pass it as a parameter
+            cFastWins = AiUtils.Truncate(cFastWins, 0.0, 1.0);
+            exploitation =
+                 AiUtils.safeDivide(cFastWins * fastWinsCount + (1.0 - cFastWins) * (reward - fastWinsCount), visitCount);
+        } else {
+            exploitation = AiUtils.safeDivide(reward, visitCount);
+        }
+        return exploitation + exploration;
+    }
+
+    public enum SelectionType {
+        STANDARD,
+        WANING_EXPLORATION,
+        FAST_WINS,
+        HEURISTICS
+    }
+
+    private static double selectionFactor(TreeNode node, SelectionType type) {
+        switch(type) {
+            case STANDARD:
+                return ucb1(node, false, false);
+            case WANING_EXPLORATION:
+                return ucb1(node, true, false);
+            case FAST_WINS:
+                return ucb1(node, false, true);
+            case HEURISTICS:
+            /* TODO */
+            break;
+        }
+
+        return 0.0;
     }
 
     /**
@@ -183,12 +225,12 @@ public class MonteCarlo extends Agent {
      * @param children The child nodes
      * @return The best node
      */
-    private static TreeNode ucbSelection(List<TreeNode> children) {
+    private static TreeNode ucbSelection(List<TreeNode> children, SelectionType type) {
         double max = Double.NEGATIVE_INFINITY;
         TreeNode best = null;
 
         for (TreeNode child : children) {
-            double ucbVal = ucb1(child);
+            double ucbVal = selectionFactor(child, type);
             if (ucbVal > max) {
                 max = ucbVal;
                 best = child;
@@ -200,7 +242,7 @@ public class MonteCarlo extends Agent {
         }
 
         if (best == null) {
-            System.out.println(ucb1(children.get(0)));
+            System.out.println(selectionFactor(children.get(0), type));
         }
         return best;
     }
@@ -228,7 +270,7 @@ public class MonteCarlo extends Agent {
             if(!isTerminal){
                 children.add(new TreeNode(true, nextTurnPlayer, x, y, nextChess, node));
             }else{
-                backPropagation(node, 1, nextTurnPlayer);
+                backPropagation(node, 1, nextTurnPlayer, false);
             }
         }
 
@@ -341,13 +383,23 @@ class TreeNode {
 
     private List<TreeNode> children;
 
+    // extendend fields
+
+    private int height;
+
+    private int fastWinsCount = 0;
+
     public TreeNode(int[][] chess) {
         this.chess = chess;
+        // extended
+        InitExtendedFields(null);
     }
 
     public TreeNode(boolean isLeaf, int[][] chess) {
         this.isLeaf = isLeaf;
         this.chess = chess;
+        // extended
+        InitExtendedFields(null);
     }
 
     public TreeNode(boolean isLeaf, int thisTurnPlayer, int x, int y, int[][] chess, TreeNode parent) {
@@ -357,6 +409,8 @@ class TreeNode {
         this.y = y;
         this.chess = chess;
         this.parent = parent;
+        // extended
+        InitExtendedFields(parent);
     }
 
     public boolean isLeaf() {
@@ -446,4 +500,27 @@ class TreeNode {
     public void increaseVisitCount() {
         this.visitsCount += 1;
     }
+
+    // extended
+
+    private void InitExtendedFields(TreeNode parent) {
+        this.height = parent == null ? 0 : parent.height + 1;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getMaxHeight() {
+        return chess.length * chess[0].length;
+    }
+
+    public int getFastWinsCount() {
+        return fastWinsCount;
+    }
+
+    public void increaseFastWinsCount() {
+        this.fastWinsCount++;
+    }
+
 }

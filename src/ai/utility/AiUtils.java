@@ -134,4 +134,13 @@ public class AiUtils {
     public static int ManhattanDistance(int x1, int y1, int x2, int y2){
         return Math.abs(x1 - x2) + Math.abs(y1 - y2);
     }
+
+    public static double Truncate(double x, double lower, double upper) {
+        if(x < lower) {
+            return lower;
+        }
+        if(x > upper)
+            return upper;
+        return x;
+    }
 }
