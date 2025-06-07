@@ -19,31 +19,30 @@ The UML diagram of this project is illustrated below:
 
 ## Ubuntu
 
-This section describes how to develop the project on Ubuntu.
+This section describes how to build and run the project.
 
 ### Prerequisites
 
-Install required packages
+Install necessary packages
 
 ```bash
-sudo apt install default-jre openjdk-19-jdk
+sudo apt install default-jre maven
 ```
 
-### Build
+To compile 
 
-To compile java 
 ```bash
-make build
+mvm compile
 ```
 
-To run specific target
+To create `.jar` artifact
+
 ```bash
-make run TARGET=<target-name>
+mvn package
 ```
 
-The available targets are:
-- AgentAnalysis
-- StartGame
-- TestMonte
+Once previous stages completed successfully to execute the application run
 
-If `TARGET` is not specified then `StartGame` is run by default. See [source](src/test/) for targets source code.
+```bash
+java -jar target/gomoku-engine-1.0.0.jar
+```
