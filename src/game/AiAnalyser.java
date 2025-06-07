@@ -1,6 +1,7 @@
 package game;
 
 import ai.*;
+import ai.MonteCarlo.SelectionType;
 import ai.constant.AiConst;
 import game.constant.GameConst;
 import observer.GameStatusChecker;
@@ -39,14 +40,14 @@ public class AiAnalyser {
         int moveCount = 0;
         int maxIter = chess.length * chess[0].length;
         while (moveCount < maxIter) {
-            System.out.println("Move " + moveCount++);
+            System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.BLACK_STONE;
             if (aiMove(agentA, chess)) {
                 printBattleInfo(agentA, true);
                 return new BattleResult(moveCount, agentA);
             }
 
-            System.out.println("Move " + moveCount++);
+            System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.WHITE_STONE;
             if (aiMove(agentB, chess)) {
                 printBattleInfo(agentB, false);
@@ -86,6 +87,18 @@ public class AiAnalyser {
                 break;
             case GameConst.THREAT_SPACE_SEARCH:
                 result = ThreatSpace.startThreatSpaceSearch(chess);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.STANDARD);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.WANING_EXPLORATION);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.FAST_WINS);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.HEURISTICS);
                 break;
             default:
                 System.err.println("Invalid Ai Index");

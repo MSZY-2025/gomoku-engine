@@ -22,7 +22,6 @@ public class AgentAnalysis {
         int wins = 0;
         for(int i = 0; i < N; i++) {
             int[][] testChess = new int[GuiConst.TILE_NUM_PER_ROW][GuiConst.TILE_NUM_PER_ROW];
-
             AiAnalyser.BattleResult result = AiAnalyser.battle(agentA, agentB, testChess);
             if(result.winningId == agentA) {
                 wins++;
@@ -41,8 +40,8 @@ public class AgentAnalysis {
         double u = dist.inverseCumulativeProbability(1.0 - pvalue);
         System.out.print(String.format("Quantile u_1-pvalue: %f", u));
 
-        // if and only if u_1-pvalue >= U then winRation < p0
-        return U < u;
+        // if and only if u_1-pvalue >= U then winRation > p0
+        return U >= u;
     }
 
     public static void main(String[] args){

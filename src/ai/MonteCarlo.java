@@ -21,7 +21,7 @@ public class MonteCarlo extends Agent {
      * Counter for MCTS
      */
     private static double c = 1.1;
-    private static double cFastWins;
+    private static double cFastWins = 0.6;
 
     public static void setC(double c) {
         MonteCarlo.c = c;
@@ -66,8 +66,8 @@ public class MonteCarlo extends Agent {
         iteration = 0;
 
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
-        //execute MCTS for 50000 times
-        while (iteration < 50000) {
+        //execute MCTS for 10000 times
+        while (iteration < 10000) {
             selection(root, type);
         }
 
@@ -83,9 +83,9 @@ public class MonteCarlo extends Agent {
             }
         }
 
-        System.out.println(root.getReward() + "-" + root.getVisitsCount());
-        System.out.println(max_x + "===" + max_y);
-        System.out.println(maxVisits);
+        System.err.println(root.getReward() + "-" + root.getVisitsCount());
+        System.err.println(max_x + "===" + max_y);
+        System.err.println(maxVisits);
         return new int[] {max_x, max_y, aiPieceType};
     }
 
@@ -96,7 +96,7 @@ public class MonteCarlo extends Agent {
      */
     private static void selection(TreeNode root, SelectionType type) {
         if (root.isLeaf()) {
-            if (root.getVisitsCount() == 0) {
+            if (root.getVisitsCount() == 0 || root.isFinal()) {
                 rollout(root);
             } else {
                 expansion(root, type);
@@ -121,7 +121,10 @@ public class MonteCarlo extends Agent {
     private static void expansion(TreeNode node, SelectionType type) {
         List<TreeNode> children = generatesChildren(node);
         node.setChildren(children);
-        node.setLeaf(false);
+        boolean isLeaf = children == null || children.size() == 0;
+        node.setLeaf(isLeaf);
+        // If expanded node has no children, then it is final one
+        node.setFinal(isLeaf);
         selection(node, type);
     }
 
@@ -142,7 +145,7 @@ public class MonteCarlo extends Agent {
             numOfMoves++;
             randomMove = getRandomMove(chess);
             if (randomMove == null) {
-                System.out.println("randomMove == null");
+                System.err.println("randomMove == null");
                 break;
             }
             placePiece(chess, randomMove, lastTurnPlayer);
@@ -183,21 +186,19 @@ public class MonteCarlo extends Agent {
      * @return UCB value
      */
     private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins) {
-        //1.1 as the ucb constant
-        // double c = 1.1;
+        double c_local = c;
         if(isWaining) {
             int height = node.getHeight();
             int maxHeight = node.getMaxHeight();
-            c *= AiUtils.safeDivide(maxHeight - height, maxHeight);
+            c_local *= AiUtils.safeDivide(maxHeight - height, maxHeight);
         }
         int reward = node.getReward();
         int visitCount = node.getVisitsCount();
         int parentVisitCount = node.getParent().getVisitsCount();
-        double exploration = c * Math.sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
+        double exploration = c_local * Math.sqrt(AiUtils.safeDivide(Math.log(parentVisitCount), visitCount));
         double exploitation;
         if(isFastWins) {
             int fastWinsCount = node.getFastWinsCount();
-            // double cFastWins = 0.6; // TODO: pass it as a parameter
             cFastWins = AiUtils.Truncate(cFastWins, 0.0, 1.0);
             exploitation =
                  AiUtils.safeDivide(cFastWins * fastWinsCount + (1.0 - cFastWins) * (reward - fastWinsCount), visitCount);
@@ -298,7 +299,7 @@ public class MonteCarlo extends Agent {
         int size = possibleMoves.size();
 
         if (size == 0) {
-            System.out.println("Chess board full");
+            System.err.println("Chess board full");
             return null;
         }
 
@@ -399,6 +400,8 @@ class TreeNode {
     private int height;
 
     private int fastWinsCount = 0;
+
+    private boolean isFinal = false;
 
     public TreeNode(int[][] chess) {
         this.chess = chess;
@@ -532,6 +535,14 @@ class TreeNode {
 
     public void increaseFastWinsCount() {
         this.fastWinsCount++;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public void setFinal(boolean isFinal) {
+        this.isFinal = true;
     }
 
 }
