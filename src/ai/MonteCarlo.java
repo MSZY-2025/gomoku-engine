@@ -542,7 +542,7 @@ class TreeNode {
     }
 
     public void setFinal(boolean isFinal) {
-        this.isFinal = true;
+        this.isFinal = isFinal;
     }
 
 }
