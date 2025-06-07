@@ -20,6 +20,17 @@ public class MonteCarlo extends Agent {
     /**
      * Counter for MCTS
      */
+    private static double c = 1.1;
+    private static double cFastWins;
+
+    public static void setC(double c) {
+        MonteCarlo.c = c;
+    }
+
+    public static void setCFastWins(double cFastWins) {
+        MonteCarlo.cFastWins = cFastWins;
+    }
+
     private static int iteration;
 
     public static void tester(int[][] chess, SelectionType type) {
@@ -173,7 +184,7 @@ public class MonteCarlo extends Agent {
      */
     private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins) {
         //1.1 as the ucb constant
-        double c = 1.1;
+        // double c = 1.1;
         if(isWaining) {
             int height = node.getHeight();
             int maxHeight = node.getMaxHeight();
@@ -186,7 +197,7 @@ public class MonteCarlo extends Agent {
         double exploitation;
         if(isFastWins) {
             int fastWinsCount = node.getFastWinsCount();
-            double cFastWins = 0.6; // TODO: pass it as a parameter
+            // double cFastWins = 0.6; // TODO: pass it as a parameter
             cFastWins = AiUtils.Truncate(cFastWins, 0.0, 1.0);
             exploitation =
                  AiUtils.safeDivide(cFastWins * fastWinsCount + (1.0 - cFastWins) * (reward - fastWinsCount), visitCount);
