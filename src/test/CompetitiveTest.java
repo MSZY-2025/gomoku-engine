@@ -16,7 +16,7 @@ public class CompetitiveTest {
         options.addOption(bot1);
 
         Option bot2 = new Option("b2", "bot2", true, "bot id");
-        bot1.setRequired(true);
+        bot2.setRequired(true);
         options.addOption(bot2);
 
         CommandLineParser parser = new DefaultParser();
