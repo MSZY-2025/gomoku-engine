@@ -44,5 +44,5 @@ mvn package
 Once previous stages completed successfully to execute the application run
 
 ```bash
-java -jar target/gomoku-engine-1.0.0.jar
+java -jar target/gomoku-engine-1.0.0.jar <name-of-entry-point-class-under-src/test>
 ```
