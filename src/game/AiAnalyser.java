@@ -43,7 +43,6 @@ public class AiAnalyser {
             System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.BLACK_STONE;
             if (aiMove(agentA, chess)) {
-                printBattleInfo(agentA, true);
                 return new BattleResult(moveCount, agentA);
             }
 
@@ -55,7 +54,6 @@ public class AiAnalyser {
             System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.WHITE_STONE;
             if (aiMove(agentB, chess)) {
-                printBattleInfo(agentB, false);
                 return new BattleResult(moveCount, agentB);
             }
         }

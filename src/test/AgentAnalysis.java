@@ -33,12 +33,12 @@ public class AgentAnalysis {
 
     public static boolean testIfWinsPercentageTimes(double winRatio, double p0, int N, double pvalue)
     {
-        double U = (winRatio - p0) / Math.sqrt(AiUtils.safeDivide(winRatio * (1.0 - winRatio), N));
-        System.out.print(String.format("Test statistic: %f", U));
+        double U = (winRatio - p0) * Math.sqrt(AiUtils.safeDivide(N, winRatio * (1.0 - winRatio)));
+        System.out.println(String.format("Test statistic: %f", U));
 
         NormalDistribution dist = new NormalDistribution();
         double u = dist.inverseCumulativeProbability(1.0 - pvalue);
-        System.out.print(String.format("Quantile u_1-pvalue: %f", u));
+        System.out.println(String.format("Quantile u_1-pvalue: %f", u));
 
         // if and only if u_1-pvalue >= U then winRation > p0
         return U >= u;
@@ -47,39 +47,39 @@ public class AgentAnalysis {
     public static void main(String[] args){
         int N = 100;
 
-        System.out.print("H1: ");
+        System.out.println("H1: ");
         if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
         GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.7, N, 0.1)) {
-            System.out.print("true");
+            System.out.println("true");
         } else {
-            System.out.print("false");
+            System.out.println("false");
         }
 
-        System.out.print("H2: ");
+        System.out.println("H2: ");
         MonteCarlo.setCFastWins(0.65);
         if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS,
         GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.60, N, 0.1)) {
-            System.out.print("true");
+            System.out.println("true");
         } else {
-            System.out.print("false");
+            System.out.println("false");
         }
 
         // TODO: beta
-        System.out.print("H3: ");
+        System.out.println("H3: ");
         if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD,
         GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS, N), 0.65, N, 0.1)) {
-            System.out.print("true");
+            System.out.println("true");
         } else {
-            System.out.print("false");
+            System.out.println("false");
         }
 
-        System.out.print("H4: ");
+        System.out.println("H4: ");
         MonteCarlo.setCFastWins(0.8);
         if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
         GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS, N), 0.7, N, 0.1)) {
-            System.out.print("true");
+            System.out.println("true");
         } else {
-            System.out.print("false");
+            System.out.println("false");
         }
     }
 }
