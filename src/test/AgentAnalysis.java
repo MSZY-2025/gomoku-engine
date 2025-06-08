@@ -26,8 +26,7 @@ public class AgentAnalysis {
 
             if(result.winningId == agentA) {
                 winsa++;
-            }
-            else {
+            } else if(result.winningId == agentB) {
                 winsb++;
             }
 
