@@ -279,10 +279,10 @@ public class MonteCarlo extends Agent {
             int[][] nextChess = AiUtils.nextMoveChessboard(chess, x, y, nextTurnPlayer);
             boolean isTerminal = GameStatusChecker.isFiveInLine(nextChess, x, y);
 
-            if(!isTerminal){
-                children.add(new TreeNode(true, nextTurnPlayer, x, y, nextChess, node));
-            }else{
-                backPropagation(node, 1, nextTurnPlayer, false);
+            children.add(new TreeNode(true, nextTurnPlayer, x, y, nextChess, node));
+
+            if(isTerminal){
+                backPropagation(node, 1, nextTurnPlayer, node.getHeight() <= node.getMaxHeight() / 2);
             }
         }
 
