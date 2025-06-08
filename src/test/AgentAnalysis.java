@@ -61,22 +61,22 @@ public class AgentAnalysis {
     public static void main(String[] args){
         int N = 100;
 
-//        System.out.println("H1: ");
-//        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
-//        GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.7, N, 0.1)) {
-//            System.out.println("true");
-//        } else {
-//            System.out.println("false");
-//        }
-//
-//        System.out.println("H2: ");
-//        MonteCarlo.setCFastWins(0.65);
-//        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS,
-//        GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.60, N, 0.1)) {
-//            System.out.println("true");
-//        } else {
-//            System.out.println("false");
-//        }
+        System.out.println("H1: ");
+        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
+        GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.7, N, 0.1)) {
+            System.out.println("true");
+        } else {
+            System.out.println("false");
+        }
+
+        System.out.println("H2: ");
+        MonteCarlo.setCFastWins(0.65);
+        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS,
+        GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD, N), 0.60, N, 0.1)) {
+            System.out.println("true");
+        } else {
+            System.out.println("false");
+        }
 
         // TODO: beta
         System.out.println("H3: ");
@@ -87,13 +87,13 @@ public class AgentAnalysis {
             System.out.println("false");
         }
 
-//        System.out.println("H4: ");
-//        MonteCarlo.setCFastWins(0.8);
-//        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
-//        GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS, N), 0.7, N, 0.1)) {
-//            System.out.println("true");
-//        } else {
-//            System.out.println("false");
-//        }
+        System.out.println("H4: ");
+        MonteCarlo.setCFastWins(0.8);
+        if(testIfWinsPercentageTimes(testWinRatio(GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION,
+        GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS, N), 0.7, N, 0.1)) {
+            System.out.println("true");
+        } else {
+            System.out.println("false");
+        }
     }
 }
