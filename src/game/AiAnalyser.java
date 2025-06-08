@@ -1,6 +1,7 @@
 package game;
 
 import ai.*;
+import ai.MonteCarlo.SelectionType;
 import ai.constant.AiConst;
 import game.constant.GameConst;
 import observer.GameStatusChecker;
@@ -16,6 +17,16 @@ public class AiAnalyser {
     private AiAnalyser() {
     }
 
+    public static class BattleResult {
+        public int moveCount;
+        public int winningId;
+
+        public BattleResult(int moveCount, int winningId) {
+            this.moveCount = moveCount;
+            this.winningId = winningId;
+        }
+    }
+
     /**
      * Starts game battle with AI agent A(black) and AI agent B(white), agent A would move first
      *
@@ -24,25 +35,29 @@ public class AiAnalyser {
      * @param chess  The chessboard of the battle
      * @return Game moves
      */
-    public static int battle(int agentA, int agentB, int[][] chess) {
+    public static BattleResult battle(int agentA, int agentB, int[][] chess) {
         //Agent A move first
         int moveCount = 0;
-        while (moveCount < 120) {
-            System.out.println("Move " + moveCount++);
+        int maxIter = chess.length * chess[0].length;
+        while (moveCount < maxIter) {
+            System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.BLACK_STONE;
             if (aiMove(agentA, chess)) {
-                printBattleInfo(agentA, true);
-                return moveCount;
+                return new BattleResult(moveCount, agentA);
             }
 
-            System.out.println("Move " + moveCount++);
+            // handling draw
+            if(moveCount == maxIter) {
+                break;
+            }
+
+            System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.WHITE_STONE;
             if (aiMove(agentB, chess)) {
-                printBattleInfo(agentB, false);
-                return moveCount;
+                return new BattleResult(moveCount, agentB);
             }
         }
-        return -1;
+        return new BattleResult(moveCount, -10);
     }
 
     /**
@@ -75,6 +90,18 @@ public class AiAnalyser {
                 break;
             case GameConst.THREAT_SPACE_SEARCH:
                 result = ThreatSpace.startThreatSpaceSearch(chess);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.STANDARD);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.WANING_EXPLORATION);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.FAST_WINS);
+                break;
+            case GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.HEURISTICS);
                 break;
             default:
                 System.err.println("Invalid Ai Index");

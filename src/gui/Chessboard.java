@@ -2,6 +2,7 @@ package gui;
 
 import ai.*;
 import ai.MonteCarlo.SelectionType;
+import ai.constant.AiConst;
 import game.GameController;
 import game.constant.GameConst;
 import observer.HistoryObserver;
@@ -202,7 +203,7 @@ public class Chessboard extends JPanel {
      * @return Return true if the position is valid, vice versa
      */
     public static boolean validateArrayIndex(int index) {
-        return index >= 0 && index <= 14;
+        return index >= 0 && index <= GuiConst.TILE_NUM_PER_ROW - 1;
     }
 
     /**

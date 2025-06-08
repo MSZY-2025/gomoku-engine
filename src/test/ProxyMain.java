@@ -19,9 +19,6 @@ public class ProxyMain {
             case "AgentAnalysis":
                 AgentAnalysis.main(newArgs);
                 break;
-            case "CompetitiveTest":
-                CompetitiveTest.main(newArgs);
-                break;
             case "StartGame":
                 StartGame.main(newArgs);
                 break;
