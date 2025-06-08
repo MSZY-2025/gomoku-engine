@@ -22,6 +22,7 @@ public class MonteCarlo extends Agent {
      */
     private static double c = 1.1;
     private static double cFastWins = 0.6;
+    private static double unvisitedBonus = 1e6;
 
     public static void setC(double c) {
         MonteCarlo.c = c;
@@ -36,7 +37,7 @@ public class MonteCarlo extends Agent {
     public static void tester(int[][] chess, SelectionType type) {
         iteration = 0;
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
-        while (iteration < 30000) {
+        while (iteration < 1000) {
             selection(root, type);
         }
 
@@ -52,7 +53,7 @@ public class MonteCarlo extends Agent {
             }
         }
 
-        System.out.println(max_x + "===" + max_y);
+        //System.out.println(max_x + "===" + max_y);
     }
 
     /**
@@ -67,7 +68,7 @@ public class MonteCarlo extends Agent {
 
         TreeNode root = new TreeNode(true, aiPieceType * -1, -1, -1, chess, null);
         //execute MCTS for 10000 times
-        while (iteration < 10000) {
+        while (iteration < 1000) {
             selection(root, type);
         }
 
@@ -83,9 +84,9 @@ public class MonteCarlo extends Agent {
             }
         }
 
-        System.err.println(root.getReward() + "-" + root.getVisitsCount());
-        System.err.println(max_x + "===" + max_y);
-        System.err.println(maxVisits);
+        //System.err.println(root.getReward() + "-" + root.getVisitsCount());
+        //System.err.println(max_x + "===" + max_y);
+        //System.err.println(maxVisits);
         return new int[] {max_x, max_y, aiPieceType};
     }
 
@@ -145,7 +146,7 @@ public class MonteCarlo extends Agent {
             numOfMoves++;
             randomMove = getRandomMove(chess);
             if (randomMove == null) {
-                System.err.println("randomMove == null");
+                //System.err.println("randomMove == null");
                 break;
             }
             placePiece(chess, randomMove, lastTurnPlayer);
@@ -185,7 +186,7 @@ public class MonteCarlo extends Agent {
      * @param node Calculates the UCB value for this particular node
      * @return UCB value
      */
-    private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins) {
+    private static double ucb1(TreeNode node, boolean isWaining, boolean isFastWins, boolean isExplorationBiased) {
         double c_local = c;
         if(isWaining) {
             int height = node.getHeight();
@@ -205,27 +206,32 @@ public class MonteCarlo extends Agent {
         } else {
             exploitation = AiUtils.safeDivide(reward, visitCount);
         }
-        return exploitation + exploration;
+
+        double bonus = 0;
+        if (isExplorationBiased && visitCount == 0) {
+            bonus = unvisitedBonus;
+        }
+
+        return exploitation + exploration + bonus;
     }
 
     public enum SelectionType {
         STANDARD,
         WANING_EXPLORATION,
         FAST_WINS,
-        HEURISTICS
+        EXPLORATION_BIASED
     }
 
     private static double selectionFactor(TreeNode node, SelectionType type) {
         switch(type) {
             case STANDARD:
-                return ucb1(node, false, false);
+                return ucb1(node, false, false, false );
             case WANING_EXPLORATION:
-                return ucb1(node, true, false);
+                return ucb1(node, true, false, false );
             case FAST_WINS:
-                return ucb1(node, false, true);
-            case HEURISTICS:
-            /* TODO */
-            break;
+                return ucb1(node, false, true,false);
+            case EXPLORATION_BIASED:
+                return ucb1(node, false, false,true);
         }
 
         return 0.0;
@@ -299,7 +305,7 @@ public class MonteCarlo extends Agent {
         int size = possibleMoves.size();
 
         if (size == 0) {
-            System.err.println("Chess board full");
+            //System.err.println("Chess board full");
             return null;
         }
 

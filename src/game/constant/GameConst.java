@@ -63,7 +63,7 @@ public class GameConst {
     /**
      * Code for monte carlo tree search based on heuristics
      */
-    public static final int MONTE_CARLO_TREE_SEARCH_HEURISTICS = 9;
+    public static final int MONTE_CARLO_TREE_SEARCH_EXPLORATION_BIASED = 9;
 
     /**
      * Code for human move first
