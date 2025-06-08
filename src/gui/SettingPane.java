@@ -48,7 +48,7 @@ public class SettingPane extends JFrame {
                 if (aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_STANDARD ||
                     aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_WANING_EXPLORATION ||
                     aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS ||
-                    aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS ||
+                    aiIndex == GameConst.MONTE_CARLO_TREE_SEARCH_EXPLORATION_BIASED ||
                     aiIndex == GameConst.BEST_FIRST) {
                     depthSpinner.setEnabled(false);
                 } else {

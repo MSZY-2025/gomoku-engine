@@ -40,7 +40,8 @@ public class AiAnalyser {
         int moveCount = 0;
         int maxIter = chess.length * chess[0].length;
         while (moveCount < maxIter) {
-            System.err.println("Move " + moveCount++);
+            moveCount++;
+            //System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.BLACK_STONE;
             if (aiMove(agentA, chess)) {
                 return new BattleResult(moveCount, agentA);
@@ -51,7 +52,8 @@ public class AiAnalyser {
                 break;
             }
 
-            System.err.println("Move " + moveCount++);
+            //System.err.println("Move " + moveCount++);
+            moveCount++;
             Agent.aiPieceType = AiConst.WHITE_STONE;
             if (aiMove(agentB, chess)) {
                 return new BattleResult(moveCount, agentB);
@@ -100,8 +102,8 @@ public class AiAnalyser {
             case GameConst.MONTE_CARLO_TREE_SEARCH_FAST_WINS:
                 result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.FAST_WINS);
                 break;
-            case GameConst.MONTE_CARLO_TREE_SEARCH_HEURISTICS:
-                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.HEURISTICS);
+            case GameConst.MONTE_CARLO_TREE_SEARCH_EXPLORATION_BIASED:
+                result = MonteCarlo.monteCarloTreeSearch(chess, SelectionType.EXPLORATION_BIASED);
                 break;
             default:
                 System.err.println("Invalid Ai Index");
