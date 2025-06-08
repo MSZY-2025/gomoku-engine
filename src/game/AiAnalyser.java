@@ -47,6 +47,11 @@ public class AiAnalyser {
                 return new BattleResult(moveCount, agentA);
             }
 
+            // handling draw
+            if(moveCount == maxIter) {
+                break;
+            }
+
             System.err.println("Move " + moveCount++);
             Agent.aiPieceType = AiConst.WHITE_STONE;
             if (aiMove(agentB, chess)) {
