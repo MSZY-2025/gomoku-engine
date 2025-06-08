@@ -38,7 +38,7 @@ public class AgentAnalysis {
         }
 
         System.out.println();
-        System.out.printf("Wins A: %d | Wins B: %d | Remisy: %d | Total games: %d%n", winsa, winsb, N-winsa-winsb, N);
+        System.out.printf("Wins A: %d | Wins B: %d | Draws: %d | Total games: %d%n", winsa, winsb, N-winsa-winsb, N);
         System.out.println();
 
         return AiUtils.safeDivide(winsa, N);
